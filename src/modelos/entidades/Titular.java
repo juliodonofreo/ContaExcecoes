@@ -30,4 +30,5 @@ public class Titular {
     public void setIdade(Integer idade) {
         this.idade = idade;
     }
+
 }
