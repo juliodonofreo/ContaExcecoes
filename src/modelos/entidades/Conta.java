@@ -7,7 +7,7 @@ public class Conta {
 
     private Integer numeroConta;
     private Titular titular;
-    private Double saldo;;
+    private Double saldo = 0.0;;
     private Double limiteSaque;
 
     public Conta() {
@@ -25,7 +25,7 @@ public class Conta {
 
         this.numeroConta = numeroConta;
         this.titular = titular;
-        this.saldo = saldo;  // não há validação de saldo pois o saldo pode, de fato, ser negativo.
+        deposito(saldo);
         this.limiteSaque = limiteSaque;
     }
 
@@ -71,11 +71,11 @@ public class Conta {
 
     public void saque(double valor) {
         if(valor < 0) {
-            throw new WithdrawException("O valor a se sacar não pode ser negativo. Digite um valor válido. ");
+            throw new WithdrawException("O valor a se sacar não pode ser negativo. ");
         }
 
         if (valor == 0) {
-            throw new WithdrawException("Não é possivel fazer um saque nulo. Digite um valor válido. ");
+            throw new WithdrawException("Não é possivel fazer um saque nulo. ");
         }
 
         double novoSaldo = saldo - valor;

@@ -2,53 +2,15 @@ package aplicacao;
 
 import modelos.entidades.Conta;
 import modelos.entidades.Titular;
+import modelos.excecoes.DepositException;
+import modelos.excecoes.WithdrawException;
+import modelos.validacoes.Validacoes;
 
-import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class Main {
 
     public static Scanner sc = new Scanner(System.in);
-
-    public static void main(String[] args) {
-
-        Titular titular = criarTitular();
-        Conta conta = criarConta(titular);
-        sc.close();
-    }
-
-    public static int validarInteiro(String mensagem){
-        Integer valor = null;
-
-        do {
-            try {
-                System.out.print(mensagem);
-                valor = sc.nextInt();
-            }
-            catch (InputMismatchException e) {
-                System.out.print("O valor inserido deve ser um número inteiro, digite novamente. ");
-                sc.nextLine();
-            }
-        }while (valor == null);
-
-        return valor;
-    }
-
-    public static double validarDouble(String mensagem) {
-        Double valor = null;
-        do {
-            try {
-                System.out.print(mensagem);
-                valor = sc.nextDouble();
-            }
-            catch (InputMismatchException e) {
-                System.out.print("O valor inserido deve ser um número, digite novamente. ");
-                sc.nextLine();
-            }
-        } while (valor == null);
-
-        return valor;
-    }
 
     public static Titular criarTitular() {
         Titular titular = null;
@@ -57,14 +19,17 @@ public class Main {
             try {
                 System.out.print("Digite o nome do titular: ");
                 String nome = sc.nextLine();
-                int idade = validarInteiro("Digite o valor da idade: ");
+                int idade = Validacoes.validarInteiro("Digite a idade do titular: ");
                 titular = new Titular(nome, idade);
             }
             catch (IllegalArgumentException e) {
-                System.out.println("FALHA NA CRIAÇÃO DO TITULAR: " + e.getMessage());
+                System.out.println("FALHA NO ACESSO DO TITULAR " + e.getMessage());
             }
             catch (Exception e) {
                 System.out.println("Exceção inesperada: " + e.getMessage());
+            }
+            finally {
+                System.out.println();
             }
         } while (titular == null);
 
@@ -76,20 +41,46 @@ public class Main {
 
         do {
             try {
-                int numeroConta = validarInteiro("Digite o numero da conta: ");
-                double saldo = validarDouble("Digite o valor do saldo: ");
-                double limite = validarDouble("Digite o limite do usuário: ");
+                int numeroConta = Validacoes.validarInteiro("Digite o numero da conta: ");
+                double saldo = Validacoes.validarDouble("Digite o valor do saldo inicial: ");
+                double limite = Validacoes.validarDouble("Digite o limite de saque: ");
                 conta = new Conta(numeroConta, titular, saldo, limite);
             }
             catch (IllegalArgumentException e) {
-                System.out.println("FALHA NA CRIAÇÃO DA CONTA: " + e.getMessage());
+                System.out.println("FALHA NO ACESSO À CONTA: " + e.getMessage());
+            }
+            catch (DepositException e) {
+                System.out.println("FALHA NO DEPÓSITO: " + e.getMessage());
             }
             catch (Exception e) {
                 System.out.println("Erro inesperado: " + e);
+            }
+            finally {
+                System.out.println();
             }
 
         }while (conta == null);
 
         return conta;
+    }
+
+    public static void main(String[] args) {
+
+        Titular titular = criarTitular();
+        Conta conta = criarConta(titular);
+
+        double valorSaque = Validacoes.validarDouble("Digite um valor para sacar: ");
+
+        try{
+            conta.saque(valorSaque);
+            System.out.println("Novo saldo: " + conta.getSaldo());
+        }
+        catch (WithdrawException e) {
+            System.out.println("ERRO NO SAQUE! " + e.getMessage());
+        }
+        catch (Exception e) {
+            System.out.println("Erro inesperado: " + e);
+        }
+        sc.close();
     }
 }
